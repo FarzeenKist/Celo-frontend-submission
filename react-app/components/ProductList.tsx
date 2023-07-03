@@ -37,10 +37,8 @@ const ProductList = () => {
         <Product
           key={i}
           id={i}
-          setSuccess={setSuccess}
           setError={setError}
           setLoading={setLoading}
-          loading={loading}
           clear={clear}
         />
       );
