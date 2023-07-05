@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction } from "react";
 import { waitForTransaction } from "wagmi/actions";
 import { toast } from "react-toastify";
 
-
+// hook to create a function that handles an interaction with the Marketplace smart contract
 export default function useCreateInteraction(
   interaction: any,
   setLoading: Dispatch<SetStateAction<string>>,
@@ -32,7 +32,7 @@ export default function useCreateInteraction(
     }
   };
 
-  // Create the callback that handles the states for the notifications and handles the interaction trigerred
+  // Create the event handler that handles the states for the notifications and handles the interaction trigerred
   const configuredInteraction = async () => {
     clear();
     try {
@@ -47,11 +47,12 @@ export default function useCreateInteraction(
     } catch (e: any) {
       console.log({ e });
       setError(e?.reason || e?.message || "Something went wrong. Try again.");
+      throw e;
       // Once the transaction is complete, clear the loading state
     } finally {
       setLoading("");
     }
   };
 
-  return configuredInteraction;
+  return configuredInteraction
 }

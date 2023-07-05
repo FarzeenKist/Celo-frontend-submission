@@ -50,7 +50,7 @@ const Product = ({ id, setError, setLoading, clear }: ProductProps) => {
   // Use the useAccount hook to store the user's address
   const { address } = useAccount();
   // Use the useContractCall hook to read the data of the product with the id passed in, from the marketplace contract
-  const { data: rawProduct }: any = useContractCall("readProduct", [id], false);
+  const { data: rawProduct }: any = useContractCall("readProduct", [id], true);
   // Use the useContractSend hook to purchase the product with the id passed in, via the marketplace contract
   const { writeAsync: purchase } = useContractSend("buyProduct", [Number(id)]);
   const [product, setProduct] = useState<Product | null>(null);
@@ -85,6 +85,7 @@ const Product = ({ id, setError, setLoading, clear }: ProductProps) => {
     getFormatProduct();
   }, [getFormatProduct]);
 
+  // function to approve the price of the product
   const approvePurchase = useCreateInteraction(
     approve,
     setLoading,
@@ -100,6 +101,7 @@ const Product = ({ id, setError, setLoading, clear }: ProductProps) => {
     "Approving..."
   );
 
+  // function to buy the product
   const purchaseProduct = useCreateInteraction(
     purchase,
     setLoading,
@@ -114,6 +116,18 @@ const Product = ({ id, setError, setLoading, clear }: ProductProps) => {
     },
     "Purchasing..."
   );
+
+  // event handler for the buy button
+  const onClickBuy = async () => {
+    try {
+      await approvePurchase();
+
+      await purchaseProduct();
+      refetch();
+    } catch (error) {
+      console.error(error)
+    }
+  };
 
   // If the product cannot be loaded, return null
   if (!product) return null;
@@ -155,6 +169,7 @@ const Product = ({ id, setError, setLoading, clear }: ProductProps) => {
               "absolute z-10 right-0 mt-4 bg-amber-400 text-black p-1 rounded-l-lg px-4"
             }
           >
+            {/* Calculates the rating for the product and rounds it to 2 decimal points */}
             {product.ratings == 0
               ? "0"
               : (product.ratings / product.reviewsLength).toFixed(2)}{" "}
@@ -183,16 +198,13 @@ const Product = ({ id, setError, setLoading, clear }: ProductProps) => {
 
             {/* Buy button that calls the purchaseProduct function on click */}
             <button
-              onClick={async () => {
-                await approvePurchase();
-                await purchaseProduct();
-                refetch();
-              }}
+              onClick={onClickBuy}
               className="mt-4 h-14 w-full border-[1px] border-gray-500 text-black p-2 rounded-lg hover:bg-black hover:text-white"
             >
               {/* Show the product price in cUSD */}
               Buy for {productPriceFromWei} cUSD
             </button>
+            {/* Renders the Reviews panel */}
             <Reviews
               id={id}
               reviewsLength={product.reviewsLength}

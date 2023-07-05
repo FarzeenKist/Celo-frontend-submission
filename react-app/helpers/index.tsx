@@ -8,6 +8,7 @@ export const identiconTemplate = (address : string) => {
     />
 }
 
+// function that removes and adds the correct color to stars icon
 export const updateStarsColor = (numberStars: number) => {
     const stars = document.querySelectorAll(".stars-input");
     stars.forEach((star, index) => {

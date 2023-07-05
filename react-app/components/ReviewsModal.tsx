@@ -37,7 +37,7 @@ function Reviews({
   const [reviewsPerPage] = useState(2);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // ReviewId to start fetchings reviews for a certain page. It is 0 by default for page 1
+  // ReviewId to start fetching reviews for a certain page. It is 0 by default for page 1
   const [offset, setOffset] = useState(0);
 
   // Define a function to return the Reviews
@@ -54,7 +54,7 @@ function Reviews({
     for (let i = offset; i < fetchAmount; i++) {
       _reviews.push(
         <Review
-          key={`productReviewId-${id}-${i}`}
+          key={`reviews-${id}-${i}`}
           productId={id}
           reviewId={i}
           clear={clear}
@@ -74,23 +74,23 @@ function Reviews({
     true,
     address
   );
-  const [reviewActions, setRevuewActions] = useState<AllowReviewAction | null>(
+  const [reviewActions, setReviewActions] = useState<AllowReviewAction | null>(
     null
   );
 
   // Format the fetched AllowReviewAction struct's data for the connected wallet
   const getFormatReviewAction = useCallback(() => {
     if (!rawAllowReviewAction) return null;
-    setRevuewActions({
+    setReviewActions({
       canReview: rawAllowReviewAction[0],
       reviewed: rawAllowReviewAction[1],
     });
   }, [rawAllowReviewAction]);
 
-  // Call the getFormatProduct function when the rawProduct state changes
+  // Call the getFormatReviewAction function when the rawAllowReviewAction state changes
   useEffect(() => {
     getFormatReviewAction();
-  }, [getFormatReviewAction]);
+  }, [rawAllowReviewAction, getFormatReviewAction]);
 
   if (!reviewActions) return null;
 
@@ -108,7 +108,7 @@ function Reviews({
       {visible && (
         <div
           className="fixed z-40 overflow-y-auto top-0 w-full left-0 max-h-screen"
-          id="modal-reviews-${id}"
+          id={`modal-reviews-${id}`}
         >
           {/* Modal body */}
 
@@ -147,6 +147,7 @@ function Reviews({
                 </div>
               ) : (
                 <AddReview
+                key={`addReview-${id}`}
                   id={id}
                   setLoading={setLoading}
                   clear={clear}
@@ -154,6 +155,7 @@ function Reviews({
                   address={address}
                   setError={setError}
                   setShowReviewForm={setShowReviewForm}
+                  canReview={reviewActions.canReview}
                 />
               )}
               {/* Button to close the products modal */}
@@ -168,8 +170,12 @@ function Reviews({
                 {/* Button to show review form for the current product */}
                 {reviewsLength > 0 ?                 <button
                   type="button"
-                  onClick={() => setShowReviewForm(!showReviewFrom)}
-                  disabled={!reviewActions.canReview && reviewActions.reviewed}
+                  onClick={() => {
+                    setShowReviewForm(!showReviewFrom)
+                    setOffset(0)
+                    setCurrentPage(1)
+                  }}
+                  disabled={reviewActions.reviewed || !reviewActions.canReview && !reviewActions.reviewed}
                   className="py-2 px-4 bg-green-500 text-white rounded hover:bg-green-700 mr-2 disabled:bg-green-200"
                 >
                   {!showReviewFrom ? "Add Review" : "Show Reviews"}

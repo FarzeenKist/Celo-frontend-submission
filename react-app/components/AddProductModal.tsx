@@ -37,11 +37,11 @@ const AddProductModal = () => {
 
   // Check if all the input fields are filled
   const isComplete =
-    productName &&
+    productName.trim() &&
     productPrice &&
-    productImage &&
-    productLocation &&
-    productDescription;
+    productImage.trim() &&
+    productLocation.trim() &&
+    productDescription.trim();
 
   // Clear the input fields after the product is added to the marketplace
   const clearForm = () => {
@@ -86,6 +86,11 @@ const AddProductModal = () => {
   // Define function that handles the creation of a product, if a user submits the product form
   const addProduct = async (e: any) => {
     e.preventDefault();
+    // Ensures valid data for product has been entered
+    if(!isComplete){
+      toast.error("Please make sure to fill all the input fields with valid data")
+      return;
+    }
     try {
       // Display a notification while the product is being added to the marketplace
       await toast.promise(handleCreateProduct(), {
@@ -163,6 +168,7 @@ const AddProductModal = () => {
                         setProductName(e.target.value);
                       }}
                       required
+                      minLength={3}
                       type="text"
                       className="w-full bg-gray-100 p-2 mt-2 mb-3"
                     />
@@ -182,6 +188,8 @@ const AddProductModal = () => {
                       onChange={(e) => {
                         setProductDescription(e.target.value);
                       }}
+
+                      minLength={5}
                       required
                       type="text"
                       className="w-full bg-gray-100 p-2 mt-2 mb-3"
@@ -192,6 +200,7 @@ const AddProductModal = () => {
                       onChange={(e) => {
                         setProductLocation(e.target.value);
                       }}
+                      minLength={2}
                       required
                       type="text"
                       className="w-full bg-gray-100 p-2 mt-2 mb-3"
@@ -204,6 +213,8 @@ const AddProductModal = () => {
                       }}
                       required
                       type="number"
+                      step={0.1}
+                      min={0.1}
                       className="w-full bg-gray-100 p-2 mt-2 mb-3"
                     />
                   </div>
@@ -219,7 +230,7 @@ const AddProductModal = () => {
                     {/* Button to add the product to the marketplace */}
                     <button
                       type="submit"
-                      disabled={!!loading || !isComplete || !createProduct}
+                      disabled={!!loading || !createProduct}
                       className="py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-700 mr-2"
                     >
                       {loading ? loading : "Create"}
